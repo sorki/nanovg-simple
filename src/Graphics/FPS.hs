@@ -48,8 +48,7 @@ render ctx stRef = do
   NVG.text ctx 30 30 $ "FPS: " <> maybe "TBD" (T.pack . show) (st ^. fpsLastInterval)
 
 update :: Double -> Data -> IO ()
-update t stRef = do
-  st' <- readIORef stRef
+update t stRef =
   modifyIORef' stRef $ \st -> (frameTotal %~ (+1))
                             . (fpsTotal .~ (fromIntegral (st ^. frameTotal + 1) / (t - st ^. timeStart))) $
     if t - st ^. intervalStart > 1
@@ -57,5 +56,3 @@ update t stRef = do
               & frameInterval .~ 1
               & intervalStart .~ t
       else st & frameInterval %~ (+1)
-  if t - st' ^. intervalStart > 1 then print $ st' ^. fpsLastInterval
-                                  else pure ()
