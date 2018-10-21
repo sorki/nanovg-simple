@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TemplateHaskell #-}
 
@@ -10,11 +11,10 @@ module Graphics.FPS
 
 import Control.Lens ((&), (^.), (%~), (.~), (?~), makeLenses)
 import Data.IORef
-import Linear (V2 (..), V4 (..))
+import qualified Data.Text as T
 import Prelude hiding (init)
 
-import qualified Graphics.Rendering.FreeType.OpenGL as F
-import qualified Graphics.Rendering.FreeType as F
+import qualified NanoVG as NVG
 
 data State = State
   { _timeStart       :: !Double
@@ -38,11 +38,14 @@ init _timeStart = do
       _fpsLastInterval = Nothing
   newIORef State {..}
 
-render :: F.DelayedRenderer -> Data -> IO ()
-render writer stRef = do
+render :: NVG.Context -> Data -> IO ()
+render ctx stRef = do
   st <- readIORef stRef
-  F.enqueue writer (V2 30 30) $
-    F.textPart (V4 0 1 0 1) (F.Height 16) $ "FPS: " <> maybe "TBD" show (st ^. fpsLastInterval)
+
+  NVG.fontFace ctx "Liberation Sans"
+  NVG.fontSize ctx 16
+  NVG.fillColor ctx $ NVG.Color 0 1 0 1
+  NVG.text ctx 30 30 $ "FPS: " <> maybe "TBD" (T.pack . show) (st ^. fpsLastInterval)
 
 update :: Double -> Data -> IO ()
 update t stRef = do

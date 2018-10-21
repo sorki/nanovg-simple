@@ -29,13 +29,11 @@ library:
   - nanovg
   - GLFW-b
   - OpenGL
-  - linear
-  - freetype2-hs
-  - freetype2-hs-opengl
+  - text
 
 ghc-options:
 - -Wall
-# - -O2
+- -O2
 
 executables:
   nanovg-playground:
@@ -52,9 +50,6 @@ executables:
     - OpenGL
     - safe-exceptions
     - monad-loops
-
-    - freetype2-hs
-    - freetype2-hs-opengl
 
 tests:
   nanovg-playground-test:

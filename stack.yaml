@@ -9,13 +9,4 @@ extra-deps:
 - git: https://github.com/bsl/bindings-GLFW.git
   commit: 09a004908872b359feaf34241d74ab9fa31f21bd
 
-- GLUtil-0.10.2
-- bitmap-0.0.2
-- derive-storable-0.1.2.0
-- hpp-0.6.1
-- git: https://github.com/CthulhuDen/freetype2-hs.git
-  commit: 1d825a7cde40d1ea833fd67dd452b83ff7cc7a97
-- git: https://github.com/CthulhuDen/freetype2-hs-opengl
-  commit: 4145007de755f4897a064d31d42dd60895c2f0f0
-
 # flags: {}

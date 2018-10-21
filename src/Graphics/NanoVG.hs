@@ -1,27 +1,24 @@
 {-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Graphics.NanoVG
   ( Context
   , init
   , runFrame
-
-  , testRect
   ) where
 
+import           Control.Monad
 import qualified NanoVG as NVG
 import           Prelude hiding (init)
 
 type Context = NVG.Context
 
 init :: IO Context
-init = NVG.createGL3 [NVG.Antialias, NVG.StencilStrokes, NVG.Debug]
+init = do
+  ctx <- NVG.createGL3 [NVG.Antialias, NVG.StencilStrokes, NVG.Debug]
+  void $ NVG.createFont ctx "Liberation Sans" $
+    NVG.FileName "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
+  pure ctx
 
 runFrame :: Context -> Int -> Int -> IO a -> IO a
 runFrame c w h act = NVG.beginFrame c (fromIntegral w) (fromIntegral h) 1 *> act <* NVG.endFrame c
-
-testRect :: Context -> IO ()
-testRect c = do
-  NVG.beginPath c
-  NVG.rect c 100 100 120 30
-  NVG.fillColor c $ NVG.Color 0 1 0 1
-  NVG.fill c
