@@ -24,26 +24,37 @@ dependencies:
 
 library:
   source-dirs: src
+  dependencies:
+  - lens
+  - nanovg
+  - GLFW-b
+  - OpenGL
+  - linear
+  - freetype2-hs
+  - freetype2-hs-opengl
 
 ghc-options:
 - -Wall
-- -O2
+# - -O2
 
 executables:
   nanovg-playground:
     main:                Main.hs
     source-dirs:         app
+    c-sources:           cbits/glew.c
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
     - nanovg-playground
-    - nanovg
     - GLFW-b
     - OpenGL
     - safe-exceptions
     - monad-loops
+
+    - freetype2-hs
+    - freetype2-hs-opengl
 
 tests:
   nanovg-playground-test:
