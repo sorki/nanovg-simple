@@ -25,8 +25,12 @@ dependencies:
 library:
   source-dirs: src
 
+ghc-options:
+- -Wall
+- -O2
+
 executables:
-  nanovg-playground-exe:
+  nanovg-playground:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -35,6 +39,11 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - nanovg-playground
+    - nanovg
+    - GLFW-b
+    - OpenGL
+    - safe-exceptions
+    - monad-loops
 
 tests:
   nanovg-playground-test:
