@@ -1,6 +1,6 @@
-name:                nanovg-playground
+name:                nanovg-simple
 version:             0.1.0.0
-github:              "CthulhuDen/nanovg-playground"
+github:              "CthulhuDen/nanovg-simple"
 license:             BSD3
 author:              "Cthulhu"
 maintainer:          "cthulhu.den@gmail.com"
@@ -11,19 +11,22 @@ extra-source-files:
 - ChangeLog.md
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
+# synopsis:            Simple interface to rendering with NanoVG with GLFW
+# category:            Graphics
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/CthulhuDen/nanovg-playground#readme>
+description:         Please see the README on GitHub at <https://github.com/CthulhuDen/nanovg-simple#readme>
 
 dependencies:
 - base >= 4.7 && < 5
 
 library:
   source-dirs: src
+  c-sources:             cbits/glew.c
+  exposed-modules:
+  - Graphics.NanoVG.Simple
   dependencies:
   - lens
   - nanovg
@@ -38,19 +41,19 @@ ghc-options:
 - -O2
 
 executables:
-  nanovg-playground:
+  nanovg-simple:
     main:                Main.hs
     source-dirs:         app
-    c-sources:           cbits/glew.c
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N1
     dependencies:
-    - nanovg-playground
+    - nanovg-simple
+    - nanovg
 
 tests:
-  nanovg-playground-test:
+  nanovg-simple-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -58,4 +61,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - nanovg-playground
+    - nanovg-simple

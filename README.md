@@ -1,1 +1,1 @@
-# nanovg-playground
+# nanovg-simple

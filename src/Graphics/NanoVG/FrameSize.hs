@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Graphics.FrameSize
+module Graphics.NanoVG.FrameSize
   ( Data
   , init
   , size

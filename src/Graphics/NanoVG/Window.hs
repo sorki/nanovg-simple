@@ -1,7 +1,10 @@
+{-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Graphics.Window
+module Graphics.NanoVG.Window
   ( Window (..)
+  , MiddleWare
   , run
   ) where
 
@@ -14,21 +17,36 @@ import           System.IO (hPutStrLn, stderr)
 
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as GLFW
+import qualified NanoVG as NVG
 
-import qualified Graphics.FPS as FPS
-import qualified Graphics.FrameSize as FS
-import qualified Graphics.NanoVG as NVG
+import qualified Graphics.NanoVG.FrameSize as FS
 
 foreign import ccall unsafe "initGlew"
   glewInit :: IO CInt
 
+-- | Window keep state and repeatedly calls render/afterRender.
+--
+-- There is no interface to update state directly so mutable containers should be used, if so desired.
 data Window st = Window
-  { winInit        :: !(IO st)
+  { winInit        :: !(NVG.Context -> IO st)
   , winRender      :: !(st -> NVG.Context -> IO ())
-  , winAfterRender :: !(st -> IO ())
+  , winAfterRender :: !(st -> NVG.Context -> IO ())
   }
 
-run :: Int -> Int -> String -> Window st -> IO ()
+-- | Middleware adds some piece of functionality to existing window.
+type MiddleWare st = forall st0. Window st0 -> Window (st st0)
+
+-- | Run given rendering instructions ('Window' structure) in new GLFW window of given size.
+run
+  :: Int
+  -- ^ Initial window width.
+  -> Int
+  -- ^ Initial window height.
+  -> String
+  -- ^ Window title.
+  -> Window st
+  -- ^ Rendering instructions to be executed in the context of the new window.
+  -> IO ()
 run initWidth initHeight title Window {..} = withGLFW $
   createWindow initWidth initHeight title >>= go
   where
@@ -39,29 +57,25 @@ run initWidth initHeight title Window {..} = withGLFW $
       -- Leave it up to vblank_mode / __GL_SYNC_TO_VBLANK
       -- GLFW.swapInterval 0
 
-      Just timeStart <- GLFW.getTime
-
-      ctx <- NVG.init
+      ctx <- NVG.createGL3 [NVG.Antialias, NVG.StencilStrokes, NVG.Debug]
       frameSize <- FS.init win
-      fps <- FPS.init timeStart
 
-      st <- winInit
+      st <- winInit ctx
 
       whileM_ (not <$> GLFW.windowShouldClose win) $ do
         throwError
         (width, height) <- FS.size frameSize
 
         GL.clear [GL.ColorBuffer]
-        NVG.runFrame ctx width height $ do
-          winRender st ctx
-          FPS.render ctx fps
+        runFrame ctx width height $ winRender st ctx
         GLFW.swapBuffers win
         GL.flush
         GLFW.pollEvents
 
-        Just timeAfter <- GLFW.getTime
-        FPS.update timeAfter fps
-        winAfterRender st
+        winAfterRender st ctx
+
+    runFrame :: NVG.Context -> Int -> Int -> IO a -> IO a
+    runFrame c w h act = NVG.beginFrame c (fromIntegral w) (fromIntegral h) 1 *> act <* NVG.endFrame c
 
 throwError :: IO ()
 throwError = do

@@ -1,3 +1,3 @@
-# Changelog for nanovg-playground
+# Changelog for nanovg-simple
 
 ## Unreleased changes
