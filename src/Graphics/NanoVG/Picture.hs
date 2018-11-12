@@ -70,9 +70,6 @@ newtype Shape = Shape
   { unShape :: NVG.Context -> IO ()
   }
 
-runShape :: NVG.Context -> Shape -> IO ()
-runShape = flip unShape
-
 -- | Saves NanoVG state, applies modifications (first argument),
 -- runs actions (second argument) and restores state.
 -- TODO expose?
@@ -103,7 +100,7 @@ arc (x, y) r a0 a1 = Shape $ \ctx ->
 
 -- | Combine multiple shapes together.
 shapes :: [Shape] -> Shape
-shapes ss = Shape $ \ctx -> traverse_ (runShape ctx) ss
+shapes ss = Shape $ \ctx -> traverse_ (`unShape` ctx) ss
 
 -- | Translate shape by given @x@ and @y@ offsets.
 translateS :: Shape -> Float -> Float -> Shape
