@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4b3f7b2754bef423ed9372e34cae43c457368c59008e8903d36e11ff8eb183df
+-- hash: a204103365de8ddf4ad9c470ab5c9c3d0546f24cc0c242172e5efaa74d1c4de5
 
 name:           nanovg-simple
-version:        0.1.0.0
+version:        0.2.0.0
 description:    Please see the README on GitHub at <https://github.com/CthulhuDen/nanovg-simple#readme>
 homepage:       https://github.com/CthulhuDen/nanovg-simple#readme
 bug-reports:    https://github.com/CthulhuDen/nanovg-simple/issues
@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Graphics.NanoVG.Simple
+      Graphics.NanoVG.Picture
   other-modules:
       Graphics.NanoVG.Fonts
       Graphics.NanoVG.FPS

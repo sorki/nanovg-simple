@@ -1,5 +1,5 @@
 name:                nanovg-simple
-version:             0.1.0.0
+version:             0.2.0.0
 github:              "CthulhuDen/nanovg-simple"
 license:             BSD3
 author:              "Cthulhu"
@@ -27,6 +27,7 @@ library:
   c-sources:             cbits/glew.c
   exposed-modules:
   - Graphics.NanoVG.Simple
+  - Graphics.NanoVG.Picture
   dependencies:
   - lens
   - nanovg
