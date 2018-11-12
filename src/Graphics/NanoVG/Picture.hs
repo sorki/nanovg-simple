@@ -23,10 +23,15 @@ module Graphics.NanoVG.Picture
   , translateS
   , rotateS
   , scaleS
+  , scaleS'
+  , scaleSx
+  , scaleSy
   , hole
 
     -- * Pictures
   , Picture
+
+  , mapShape
 
     -- * Contstructors
 
@@ -39,6 +44,9 @@ module Graphics.NanoVG.Picture
   , translateP
   , rotateP
   , scaleP
+  , scaleP'
+  , scalePx
+  , scalePy
 
     -- * Rendering
   , render
@@ -103,28 +111,49 @@ shapes :: [Shape] -> Shape
 shapes ss = Shape $ \ctx -> traverse_ (`unShape` ctx) ss
 
 -- | Translate shape by given @x@ and @y@ offsets.
-translateS :: Shape -> Float -> Float -> Shape
-translateS s x y = Shape $ \ctx ->
+translateS :: Float -> Float -> Shape -> Shape
+translateS x y s = Shape $ \ctx ->
   withState ctx (NVG.translate ctx (realToFrac x) (realToFrac y)) $
     unShape s ctx
 
 -- | Rotate shape around given point by given angle.
-rotateS :: Shape -> Center -> Angle -> Shape
-rotateS s (x, y) a = Shape $ \ctx ->
+rotateS :: Center -> Angle -> Shape -> Shape
+rotateS (x, y) a s = Shape $ \ctx ->
   withState ctx
-    (NVG.translate ctx fx fy *> NVG.rotate ctx fa *> NVG.translate ctx (-fx) (-fy))
+    (NVG.translate ctx fx fy *>
+     NVG.rotate ctx fa *>
+     NVG.translate ctx (-fx) (-fy))
     (unShape s ctx)
   where
     (fx, fy, fa) = (realToFrac x, realToFrac y, realToFrac a)
 
--- | Scale shape around given point by given factor.
-scaleS :: Shape -> Center -> Float -> Shape
-scaleS s (x, y) k = Shape $ \ctx ->
+-- | Scale shape from given point in given direction.
+-- This is affine transformation
+scaleS :: Center -> Angle -> Float -> Shape -> Shape
+scaleS (x, y) a k s = Shape $ \ctx ->
   withState ctx
-    (NVG.translate ctx fx fy *> NVG.scale ctx fk fk *> NVG.translate ctx (-(fk*fx)) (-(fk*fy)))
+    (NVG.translate ctx fx fy *>
+     NVG.rotate ctx fa *>
+     NVG.scale ctx fk 1 *>
+     NVG.rotate ctx (-fa) *>
+     NVG.translate ctx (-(fx*fk)) (-fy))
     (unShape s ctx)
   where
-    (fx, fy, fk) = (realToFrac x, realToFrac y, realToFrac k)
+    (fx, fy, fa, fk) = (realToFrac x, realToFrac y, realToFrac a, realToFrac k)
+
+-- | Scale shape from given point in positive X direction
+-- by given factor.
+scaleSx :: Center -> Float -> Shape -> Shape
+scaleSx (x, y) = scaleS (x, y) 0
+
+-- | Scale shape from given point in positive Y direction
+-- by given factor.
+scaleSy :: Center -> Float -> Shape -> Shape
+scaleSy (x, y) = scaleS (x, y) (pi/2)
+
+-- | Scale shape from given point by given factor in every direction.
+scaleS' :: Center -> Float -> Shape -> Shape
+scaleS' c k = scaleSx c k . scaleSy c k
 
 -- | Turns shape into a hole which can then be combined
 -- with other (solid) shape. E.g.
@@ -133,8 +162,9 @@ scaleS s (x, y) k = Shape $ \ctx ->
 --
 -- can be used to create a ring of width 10.
 hole :: Shape -> Shape
-hole s = Shape $ \ctx -> withState ctx (NVG.pathWinding ctx $ fromIntegral $ fromEnum NVG.CW) $
+hole s = Shape $ \ctx -> do
   unShape s ctx
+  NVG.pathWinding ctx $ fromIntegral $ fromEnum NVG.CW
 
 -- | Picture represent collection of filled/stroked shapes
 -- ready to be rendered
@@ -143,7 +173,7 @@ data Picture =
   | Fill NVG.Color Shape
   | Pictures [Picture]
 
--- | TODO expose?
+-- | Modify shape(s) the picture was based off.
 mapShape :: (Shape -> Shape) -> Picture -> Picture
 mapShape f = \case
   Stroke c s -> Stroke c $ f s
@@ -151,16 +181,31 @@ mapShape f = \case
   Pictures ss  -> Pictures $ mapShape f <$> ss
 
 -- | Translate the picture by given @x@ and @y@ offsets.
-translateP :: Picture -> Float -> Float -> Picture
-translateP p x y = mapShape (\s -> translateS s x y) p
+translateP :: Float -> Float -> Picture -> Picture
+translateP x y = mapShape $ translateS x y
 
 -- | Rotate the picture around given point for given angle.
-rotateP :: Picture -> Center -> Angle -> Picture
-rotateP p c a = mapShape (\s -> rotateS s c a) p
+rotateP :: Center -> Angle -> Picture -> Picture
+rotateP c a = mapShape $ rotateS c a
 
--- | Scale the picture around given point by given factor.
-scaleP :: Picture -> Center -> Float -> Picture
-scaleP p c k = mapShape (\s -> scaleS s c k) p
+-- | Scale picture from given point in given direction.
+-- This is affine transformation
+scaleP :: Center -> Angle -> Float -> Picture -> Picture
+scaleP c a k = mapShape $ scaleS c a k
+
+-- | Scale picture from given point in positive X direction
+-- by given factor.
+scalePx :: Center -> Float -> Picture -> Picture
+scalePx c = scaleP c 0
+
+-- | Scale picture from given point in positive Y direction
+-- by given factor.
+scalePy :: Center -> Float -> Picture -> Picture
+scalePy c = scaleP c (pi/2)
+
+-- | Scale picture from given point by given factor in every direction.
+scaleP' :: Center -> Float -> Picture -> Picture
+scaleP' c k = scalePx c k . scalePy c k
 
 -- | Stroke the shape to create a picture.
 stroke :: NVG.Color -> Shape -> Picture

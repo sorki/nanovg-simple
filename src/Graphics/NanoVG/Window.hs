@@ -66,7 +66,7 @@ run initWidth initHeight title Window {..} = withGLFW $
         throwError
         (width, height) <- FS.size frameSize
 
-        GL.clear [GL.ColorBuffer]
+        GL.clear [GL.ColorBuffer, GL.StencilBuffer]
         runFrame ctx width height $ winRender st ctx
         GLFW.swapBuffers win
         GL.flush
