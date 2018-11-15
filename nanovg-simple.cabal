@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3818eb5a81d2a89ec9ac9a4b8ff4fc4149ebe033743ba8541e3bc228663f40ae
+-- hash: 924ad3eebbd5ab25e38302165ab7411092af87b61b052a95182f8d98caef538f
 
 name:           nanovg-simple
-version:        0.3.0.0
+version:        0.3.0.1
 description:    Please see the README on GitHub at <https://github.com/CthulhuDen/nanovg-simple#readme>
 homepage:       https://github.com/CthulhuDen/nanovg-simple#readme
 bug-reports:    https://github.com/CthulhuDen/nanovg-simple/issues
@@ -59,10 +59,10 @@ executable nanovg-simple
       app
   ghc-options: -Wall -O2 -threaded -rtsopts -with-rtsopts=-N1
   build-depends:
-      GLFW-b
-    , base >=4.7 && <5
+      base >=4.7 && <5
     , nanovg
     , nanovg-simple
+    , time
   default-language: Haskell2010
 
 test-suite nanovg-simple-test
