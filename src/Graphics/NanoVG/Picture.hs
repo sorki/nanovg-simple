@@ -4,6 +4,15 @@
 --
 -- It allows you to define simple pieces, combine and move\/rotate\/scale them
 -- to produce the final image.
+--
+-- Example of composite picture (filled circle inside stroked one, both moved to the side by 50 pixels):
+--
+-- @
+-- translateP 50 0 $ pictures
+--   [ fill (NVG.Color 1 1 1 1) $ circle (10, 10) 10
+--   , stroke (NVG.Color 1 1 1 1) $ circle (10, 10) 15
+--   ]
+-- @
 module Graphics.NanoVG.Picture
   ( -- * Shapes
     Shape (..)
@@ -52,7 +61,7 @@ module Graphics.NanoVG.Picture
   , render
 
     -- * Rendering as 'Window'
-  , runWindow
+  , asWindow
   ) where
 
 import Control.Exception.Safe
@@ -234,8 +243,8 @@ render ctx = \case
     traverse_ (render ctx) ss
 
 -- | Create 'Window' which constantly queries and renders received picture.
-runWindow :: IO Picture -> Window ()
-runWindow g = Window
+asWindow :: IO Picture -> Window ()
+asWindow g = Window
   { winInit = \_ -> pure ()
   , winRender = \_ ctx -> g >>= render ctx
   , winAfterRender = \_ _ -> pure ()

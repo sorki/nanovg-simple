@@ -1,5 +1,5 @@
 name:                nanovg-simple
-version:             0.3.0.1
+version:             0.4.0.0
 github:              "CthulhuDen/nanovg-simple"
 license:             BSD3
 author:              "Cthulhu"
@@ -29,10 +29,9 @@ library:
   - Graphics.NanoVG.Simple
   - Graphics.NanoVG.Picture
   dependencies:
-  - lens
-  - nanovg
-  - GLFW-b
-  - OpenGL
+  - nanovg >= 0.6 && < 0.7
+  - GLFW-b >= 3.2 && < 3.3
+  - OpenGL >= 3.0 && < 3.1
   - text
   - monad-loops
   - safe-exceptions
@@ -43,6 +42,9 @@ ghc-options:
 
 executables:
   nanovg-simple:
+    when:
+    - condition: flag(library-only)
+      buildable: false
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -54,13 +56,7 @@ executables:
     - nanovg
     - time
 
-tests:
-  nanovg-simple-test:
-    main:                Spec.hs
-    source-dirs:         test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - nanovg-simple
+flags:
+  library-only:
+    default: true
+    manual: false

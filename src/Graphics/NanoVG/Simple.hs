@@ -1,8 +1,20 @@
 -- | Description: Simple high-level context management interface for NanoVG with GLFW
 -- Module provides utilities to create usable NanoVG contexts in GLFW windows.
 module Graphics.NanoVG.Simple
-  ( -- * Windows
+  ( -- | Simple example:
+    --
+    -- @
+    -- import           Graphics.NanoVG.Simple
+    -- import qualified NanoVG as NVG
+    --
+    -- main :: IO ()
+    -- main = run 800 600 "Simple app" $ simpleWindow $
+    --   NVG.circle ctx 10 10 10 *> NVG.fill ctx
+    -- @
+
+    -- * Windows
     Window (..)
+  , simpleWindow
   , run
     -- * Middlewares
   , MiddleWare

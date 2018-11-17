@@ -13,7 +13,7 @@ main = do
   NS.run 800 600 "nanovg Playground" $
     NS.showFPS "Liberation Sans" $
     NS.loadFont "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf" "Liberation Sans" $
-    P.runWindow $ getPOSIXTime >>= \time -> pure $
+    P.asWindow $ getPOSIXTime >>= \time -> pure $
       P.rotateP (400, 300) (realToFrac $ time - start) $
       P.scaleP' (0, 0) 10 $
         P.pictures

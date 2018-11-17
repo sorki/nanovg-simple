@@ -1,5 +1,30 @@
 # nanovg-simple
 
-Simple interface to creating window with associated NanoVG context.
+Simple interface to creating window with associated NanoVG context. See
+[nanovg.h](https://github.com/memononen/nanovg/blob/master/src/nanovg.h) for comprehensive listing of methods.
 
-Also provides rendering of combination of composable picture pieces: see `Graphics.NanoVG.Picture`.
+Refer to `Graphics.NanoVG.Simple` module for utilities to create NanoVG window. Simple example:
+
+```haskell
+import           Graphics.NanoVG.Simple
+import qualified NanoVG as NVG
+
+main :: IO ()
+main = run 800 600 "Simple app" $ simpleWindow $
+  NVG.circle ctx 10 10 10 *> NVG.fill ctx
+```
+
+Also provided is wrapper for rendering combination of composable picture pieces: see `Graphics.NanoVG.Picture`.
+
+```haskell
+import           Graphics.NanoVG.Picture
+import           Graphics.NanoVG.Simple
+import qualified NanoVG as NVG
+
+main :: IO ()
+main = run 800 600 "Simple app" $ asWindow $
+  pure $ translateP 50 0 $ pictures
+    [ fill (NVG.Color 1 1 1 1) $ circle (10, 10) 10
+    , stroke (NVG.Color 1 1 1 1) $ circle (10, 10) 15
+    ]
+```

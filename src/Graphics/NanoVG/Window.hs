@@ -4,6 +4,7 @@
 
 module Graphics.NanoVG.Window
   ( Window (..)
+  , simpleWindow
   , MiddleWare
   , run
   ) where
@@ -26,6 +27,10 @@ foreign import ccall unsafe "initGlew"
 
 -- | Window keep state and repeatedly calls render/afterRender.
 --
+-- Invocation of 'winRender' action happens inside nanovg frame, so you can use
+-- the provided context to render whatever you want. The buffers are cleared before
+-- each frame.
+--
 -- There is no interface to update state directly so mutable containers should be used, if so desired.
 data Window st = Window
   { winInit        :: !(NVG.Context -> IO st)
@@ -33,10 +38,20 @@ data Window st = Window
   , winAfterRender :: !(st -> NVG.Context -> IO ())
   }
 
--- | Middleware adds some piece of functionality to existing window.
-type MiddleWare st = forall st0. Window st0 -> Window (st st0)
+-- | Create new window which does not need own persistent state.
+simpleWindow :: (NVG.Context -> IO ()) -> Window ()
+simpleWindow render = Window
+  { winInit = const $ pure ()
+  , winRender = const render
+  , winAfterRender = \_ _ -> pure ()
+  }
 
--- | Run given rendering instructions ('Window' structure) in new GLFW window of given size.
+-- | Middleware adds some piece of functionality to existing window.
+type MiddleWare st0 st = Window st0 -> Window st
+
+-- | Run given rendering instructions ('Window' structure) in new GLFW window of given size and title.
+--
+-- __NOTE__: It is currently impossible to run multiple windows simultaneously in same application.
 run
   :: Int
   -- ^ Initial window width.
