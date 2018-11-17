@@ -8,7 +8,6 @@ copyright:           "Cthulhu (c) 2018"
 
 extra-source-files:
 - README.md
-- ChangeLog.md
 
 # Metadata used when publishing your package
 synopsis:            Simple interface to rendering with NanoVG
@@ -29,16 +28,15 @@ library:
   - Graphics.NanoVG.Simple
   - Graphics.NanoVG.Picture
   dependencies:
-  - nanovg >= 0.6 && < 0.7
-  - GLFW-b >= 3.2 && < 3.3
-  - OpenGL >= 3.0 && < 3.1
-  - text
-  - monad-loops
-  - safe-exceptions
+  - nanovg >= 0.6.0.0 && < 0.7
+  - GLFW-b >= 3.2.1.0 && < 3.3
+  - OpenGL >= 3.0.2.2 && < 3.1
+  - text >= 1.2.3.0 && < 1.3
+  - monad-loops >= 0.4.3 && < 0.5
+  - safe-exceptions >= 0.1.7.0 && < 0.2
 
 ghc-options:
 - -Wall
-- -O2
 
 executables:
   nanovg-simple:
@@ -53,8 +51,8 @@ executables:
     - -with-rtsopts=-N1
     dependencies:
     - nanovg-simple
-    - nanovg
-    - time
+    - nanovg >= 0.6.0.0 && < 0.7
+    - time >= 1.8.0.2 && < 1.10
 
 flags:
   library-only:
