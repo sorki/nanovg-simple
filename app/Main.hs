@@ -16,13 +16,13 @@ main = do
     P.asWindow $ getPOSIXTime >>= \time -> pure $
       P.rotateP (400, 300) (realToFrac $ time - start) $
       P.scaleP' (0, 0) 10 $
-        P.pictures
+        mconcat
           [ P.translateP (12 * (x+1)) (12 * (y+1)) myRing
           | x <- [0..4]
           , y <- [0..3]
           ]
   where
-    myRing = P.fill (NVG.Color 1 0 0 1) $ P.shapes
+    myRing = P.fill (NVG.Color 1 0 0 1) $ mconcat
       [ P.circle (0, 0) 4
       , P.hole $ P.circle (0, 0) 3
       ]

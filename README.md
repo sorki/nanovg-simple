@@ -19,12 +19,12 @@ Also provided is wrapper for rendering combination of composable picture pieces:
 ```haskell
 import           Graphics.NanoVG.Picture
 import           Graphics.NanoVG.Simple
-import qualified NanoVG as NVG
 
 main :: IO ()
 main = run 800 600 "Simple app" $ asWindow $
-  pure $ translateP 50 0 $ pictures
-    [ fill (NVG.Color 1 1 1 1) $ circle (10, 10) 10
-    , stroke (NVG.Color 1 1 1 1) $ circle (10, 10) 15
+  pure $ translateP 50 0 $ mconcat
+    [ fill (Color 1 1 1 1) $ circle (10, 10) 10
+    , stroke (Color 1 1 1 1) $ circle (10, 10) 15
+    , fill (Color 0 1 0 1) $ $ translateS (-50) 0 $ line (0, 0) (5, 5)
     ]
 ```

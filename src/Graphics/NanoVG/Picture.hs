@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
 -- | Description: Rendering composable picture fragments
 -- The module was originally inspired by gloss Picture data type.
@@ -8,9 +9,9 @@
 -- Example of composite picture (filled circle inside stroked one, both moved to the side by 50 pixels):
 --
 -- @
--- translateP 50 0 $ pictures
---   [ fill (NVG.Color 1 1 1 1) $ circle (10, 10) 10
---   , stroke (NVG.Color 1 1 1 1) $ circle (10, 10) 15
+-- translateP 50 0 $ mconcat
+--   [ fill (Color 1 1 1 1) $ circle (10, 10) 10
+--   , stroke (Color 1 1 1 1) $ circle (10, 10) 15
 --   ]
 -- @
 module Graphics.NanoVG.Picture
@@ -27,8 +28,9 @@ module Graphics.NanoVG.Picture
   , circle
   , line
   , rectangle
+  , path
+  , closedPath
   , arc
-  , shapes
   , translateS
   , rotateS
   , scaleS
@@ -49,7 +51,6 @@ module Graphics.NanoVG.Picture
 
   , stroke
   , fill
-  , pictures
   , translateP
   , rotateP
   , scaleP
@@ -62,6 +63,9 @@ module Graphics.NanoVG.Picture
 
     -- * Rendering as 'Window'
   , asWindow
+
+    -- * Re-export
+  , NVG.Color (..)
   ) where
 
 import Control.Exception.Safe
@@ -85,7 +89,7 @@ type Angle = Float
 -- Action should define set of paths for the passed 'NVG.Context'.
 newtype Shape = Shape
   { unShape :: NVG.Context -> IO ()
-  }
+  } deriving (Semigroup, Monoid)
 
 -- | Saves NanoVG state, applies modifications (first argument),
 -- runs actions (second argument) and restores state.
@@ -109,15 +113,27 @@ rectangle (ax, ay) (bx, by) = Shape $ \ctx ->
   NVG.rect ctx (realToFrac $ min ax bx) (realToFrac $ min ay by)
                (realToFrac $ abs $ ax - bx) (realToFrac $ abs $ ay - by)
 
+-- | Continuous path following the points
+path :: [Point] -> Shape
+path ps = Shape $ \ctx -> do
+  case (ps, head ps) of
+    (_:_:_, (x, y)) -> -- Extract first element but only if list has at least two
+      NVG.moveTo ctx (realToFrac x) (realToFrac y)
+    _ ->
+      pure ()
+  forM_ (tail ps) $ \(x, y) -> NVG.lineTo ctx (realToFrac x) (realToFrac y)
+
+-- | Continuous path following the points then returning to the first one
+closedPath :: [Point] -> Shape
+closedPath ps = path ps <> case ps of
+  ((x, y):_:_:_) -> Shape $ \ctx -> NVG.lineTo ctx (realToFrac x) (realToFrac y)
+  _ -> Shape $ const $ pure ()
+
 -- | Make arc shape with given center and going counter-clockwise
 -- from first angle to the second.
 arc :: Center -> Radius -> Angle -> Angle -> Shape
 arc (x, y) r a0 a1 = Shape $ \ctx ->
   NVG.arc ctx (realToFrac x) (realToFrac y) (realToFrac r) (realToFrac a0) (realToFrac a1) NVG.CCW
-
--- | Combine multiple shapes together.
-shapes :: [Shape] -> Shape
-shapes ss = Shape $ \ctx -> traverse_ (`unShape` ctx) ss
 
 -- | Translate shape by given @x@ and @y@ offsets.
 translateS :: Float -> Float -> Shape -> Shape
@@ -167,7 +183,7 @@ scaleS' c k = scaleSx c k . scaleSy c k
 -- | Turns shape into a hole which can then be combined
 -- with other (solid) shape. E.g.
 --
--- > fill (Color 1 0 0 1) $ shapes [circle (0, 0) 40, hole $ circle (0, 0) 30]
+-- > fill (Color 1 0 0 1) $ circle (0, 0) 40 <> hole (circle (0, 0) 30)
 --
 -- can be used to create a ring of width 10.
 hole :: Shape -> Shape
@@ -181,6 +197,16 @@ data Picture =
     Stroke NVG.Color Shape
   | Fill NVG.Color Shape
   | Pictures [Picture]
+
+instance Semigroup Picture where
+  -- Could have get away with only last but let's try to reduce nesting
+  Pictures ps1 <> Pictures ps2 = Pictures $ ps1 <> ps2
+  Pictures ps <> pic           = Pictures $ ps <> [pic]
+  pic <> Pictures ps           = Pictures $ pic : ps
+  pic1 <> pic2                 = Pictures [pic1, pic2]
+
+instance Monoid Picture where
+  mempty = Pictures []
 
 -- | Modify shape(s) the picture was based off.
 mapShape :: (Shape -> Shape) -> Picture -> Picture
@@ -223,10 +249,6 @@ stroke = Stroke
 -- | Fill the shape to create a picture.
 fill :: NVG.Color -> Shape -> Picture
 fill = Fill
-
--- | Combine multiple pictures together.
-pictures :: [Picture] -> Picture
-pictures = Pictures
 
 -- | Render picture with given NanoVG context.
 render :: NVG.Context -> Picture -> IO ()
