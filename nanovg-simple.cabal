@@ -46,7 +46,7 @@ library
   c-sources:
       cbits/glew.c
   build-depends:
-      GLFW-b >=3.2.1.0 && <3.3
+      GLFW-b >=3.2.1.0 && <3.4
     , OpenGL >=3.0.2.2 && <3.1
     , base >=4.7 && <5
     , monad-loops >=0.4.3 && <0.5
