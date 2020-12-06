@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.30.0.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8ce252517400907d7fddd1a8be6687d887dd394a1b50e56cef94194654b32b19
+-- hash: 727aa62760ab2a7feb3730282c16b678ad0c6fc0900141ab62414c6d56b7bc50
 
 name:           nanovg-simple
 version:        0.5.0.0
@@ -46,7 +46,7 @@ library
   c-sources:
       cbits/glew.c
   build-depends:
-      GLFW-b >=3.2.1.0 && <3.3
+      GLFW-b >=3.2.1.0 && <3.4
     , OpenGL >=3.0.2.2 && <3.1
     , base >=4.7 && <5
     , monad-loops >=0.4.3 && <0.5

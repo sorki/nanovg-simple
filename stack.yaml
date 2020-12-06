@@ -1,12 +1,11 @@
-resolver: lts-12.17
+resolver: lts-16.14
 
 packages:
 - .
 
 extra-deps:
 - nanovg-0.6.0.0
-- git: https://github.com/bsl/bindings-GLFW.git
-  commit: 09a004908872b359feaf34241d74ab9fa31f21bd
+- bindings-GLFW-3.3.2.0
 
 flags:
   nanovg-simple:
