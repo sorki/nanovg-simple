@@ -28,7 +28,7 @@ library:
   - Graphics.NanoVG.Simple
   - Graphics.NanoVG.Picture
   dependencies:
-  - nanovg >= 0.6.0.0 && < 0.7
+  - nanovg >= 0.6.0.0 && < 0.8
   - GLFW-b >= 3.2.1.0 && < 3.4
   - OpenGL >= 3.0.2.2 && < 3.1
   - text >= 1.2.3.0 && < 1.3
